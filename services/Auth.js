@@ -51,7 +51,3 @@ exports.verifyJwt = fastify => async function (request, reply) {
     }
   }
 }
-
-exports.me = fastify => async function (request, reply) {
-  reply.send(request.user);
-}
