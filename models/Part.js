@@ -23,6 +23,9 @@ module.exports = async function (fastify, opts) {
       quantity: {
         type: DataTypes.INTEGER,
       },
+      unit: {
+        type: DataTypes.STRING,
+      },
       product_name: {
         type: DataTypes.STRING,
       },

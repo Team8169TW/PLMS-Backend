@@ -8,6 +8,7 @@ module.exports = async function (fastify, opts) {
     StoreArea,
     StoreGrid,
     StoreBox,
+    StorePart,
     History,
   } = fastify.sequelize.models;
 
@@ -16,10 +17,13 @@ module.exports = async function (fastify, opts) {
 
   StoreArea.hasMany(StoreGrid, {foreignKey: 'store_area_id'});
   StoreGrid.hasMany(StoreBox, {foreignKey: 'store_grid_id'});
-  StoreBox.hasMany(Part, {foreignKey: 'store_box_id'});
-  Part.belongsTo(StoreBox, {foreignKey: 'store_box_id'});
+  StoreBox.hasMany(StorePart, {foreignKey: 'store_box_id'});
+  StorePart.belongsTo(StoreBox, {foreignKey: 'store_box_id'});
   StoreBox.belongsTo(StoreGrid, {foreignKey: 'store_grid_id'});
   StoreGrid.belongsTo(StoreArea, {foreignKey: 'store_area_id'});
+
+  Part.hasOne(StorePart, {foreignKey: 'part_id'});
+  StorePart.belongsTo(Part, {foreignKey: 'part_id'});
 
   User.hasMany(History, {foreignKey: 'operator_id'});
   Part.hasMany(History, {foreignKey: 'part_id'});

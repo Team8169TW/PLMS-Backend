@@ -12,7 +12,7 @@ module.exports = async function (fastify, opts) {
         autoIncrement: true,
       },
       number: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
       },
       name: {
         type: DataTypes.STRING,
