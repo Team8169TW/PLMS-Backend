@@ -58,14 +58,52 @@ exports.getStore = fastify => async function (request, reply) {
       }),
     });
   } else {
-
+    const sGrid = await StoreGrid.findOne({
+      attributes: ['number', 'name'],
+      where: {
+        number: parseInt(grid),
+      },
+      order: [
+        [{model: StoreBox}, 'number'],
+      ],
+      include: [
+        {
+          model: StoreArea,
+          where: {
+            code: area,
+          },
+        },
+        {
+          model: StoreBox,
+          attributes: ['number'],
+          where: parseInt(box) ? {
+            number: parseInt(box),
+          } : {},
+          include: {
+            model: StorePart,
+            attributes: ['id'],
+            include: {
+              model: Part,
+              attributes: ['id', 'common_name', 'spec', 'quantity', 'unit'],
+            },
+          },
+        }
+      ],
+    });
+    if (!sGrid)
+      throw fastify.httpErrors.notFound(`Store ${parseInt(box) ? "Box" : "Grid"} Not Found`);
+    reply.code(200).send({
+      store: {
+        area_code: sGrid.StoreArea.code,
+        area_name: sGrid.StoreArea.name,
+        grid_number: sGrid.number,
+        grid_name: sGrid.name,
+        box_number: parseInt(box),
+      },
+      storeContent: sGrid.StoreBoxes.map((box) => ({
+        number: box.number,
+        parts: box.StoreParts.map((storePart) => (storePart.Part)),
+      })),
+    });
   }
-  reply.code(200).send(null);
-  return;
-
-  if (storeParts.length === 0)
-    throw fastify.httpErrors.notFound('Part Not Found');
-  if (!!partId)
-    storeParts = storeParts[0];
-  reply.code(200).send(storeParts);
 }
