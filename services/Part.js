@@ -15,7 +15,7 @@ exports.getParts = fastify => async function (request, reply) {
             attributes: ['name'],
           }, {
             model: History,
-            attributes: ['id', 'type', 'quantity', 'createdAt'],
+            attributes: ['id', 'type', 'quantity', 'createdAt', 'operator_id'],
             limit: 3,
             order: [['id', 'DESC']],
             include: {
@@ -50,7 +50,7 @@ exports.getParts = fastify => async function (request, reply) {
         box_number: item.StoreBox.number,
       },
       history: Histories.map(function (history) {
-        const {User, ...others} = history.dataValues;
+        const {User, operator_id, ...others} = history.dataValues;
         return {...others, operator_name: User.name};
       }),
     };
