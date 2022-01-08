@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 exports.getParts = fastify => async function (request, reply) {
   const {partId} = request.params;
   const {Part, Supplier, StorePart, StoreBox, StoreGrid, StoreArea, History, User} = fastify.sequelize.models;

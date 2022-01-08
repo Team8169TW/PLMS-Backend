@@ -1,5 +1,4 @@
 const readFileSync = require('fs').readFileSync;
-const bcrypt = require('bcryptjs');
 const {createSigner, createVerifier} = require('fast-jwt');
 const authConfig = require('../config/authConfig');
 const {OAuth2Client} = require('google-auth-library');

@@ -1,9 +1,7 @@
-const crypto = require('crypto');
-
 exports.getStore = fastify => async function (request, reply) {
   const {storeCode} = request.params;
   const [area, grid, box] = storeCode.split('-');
-  const {Part, Supplier, StorePart, StoreBox, StoreGrid, StoreArea, History, User} = fastify.sequelize.models;
+  const {Part, StorePart, StoreBox, StoreGrid, StoreArea} = fastify.sequelize.models;
   if (area === "" || grid === undefined || grid === "" || box === undefined || box === "")
     throw fastify.httpErrors.badRequest("Store Code Format Error");
   if (parseInt(grid) === 0) {
@@ -64,7 +62,7 @@ exports.getStore = fastify => async function (request, reply) {
         number: parseInt(grid),
       },
       order: [
-        [{model: StoreBox}, 'number'],
+        [StoreBox, 'number'],
       ],
       include: [
         {
@@ -107,3 +105,48 @@ exports.getStore = fastify => async function (request, reply) {
     });
   }
 }
+
+exports.getStores = fastify => async function (request, reply) {
+  const {Part, StorePart, StoreBox, StoreGrid, StoreArea} = fastify.sequelize.models;
+  const sArea = await StoreArea.findAll({
+    attributes: ['code', 'name'],
+    order: [
+      'code',
+      [StoreGrid, 'number'],
+      [StoreGrid, StoreBox, 'number'],
+    ],
+    include: {
+      model: StoreGrid,
+      attributes: ['number', 'name'],
+      include: {
+        model: StoreBox,
+        attributes: ['number'],
+        include: {
+          model: StorePart,
+          attributes: ['id'],
+          include: {
+            model: Part,
+            attributes: ['common_name'],
+          },
+        },
+      },
+    },
+  });
+  reply.code(200).send(sArea.map((area) => ({
+    code: area.code,
+    name: area.name,
+    grids: area.StoreGrids.map((grid) => ({
+      number: grid.number,
+      name: grid.name,
+      boxes: grid.StoreBoxes.map((box) => ({
+        number: box.number,
+        parts: box.StoreParts
+          .map((storeParts) => (storeParts.Part.common_name))
+          .filter(function (element, index, arr) {
+            return arr.indexOf(element) === index;
+          }),
+      })),
+    })),
+  })));
+}
+
